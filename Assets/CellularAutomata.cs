@@ -7,21 +7,35 @@ public class CellularAutomata : MonoBehaviour
     [Range(0, 100)]
     public int fillPercentage = 50;
 
-    public const int width = 100;
-    public const int height = 60;
+    public int width = 100;
+    public int height = 60;
 
-    bool[,] map;
+    public bool[,] map;
 
-    private void Start()
+    //------------GENERATE-------------
+    public void GenerateFullMap()
     {
         GenerateRandom(fillPercentage);
+        for (int i = 0; i < 15; i++)
+        {
+            IterateMapOnce();
+        }
+        AfterAnalyse();
     }
 
-    void Update()
+    void AfterAnalyse()
     {
-        if(Input.GetKeyDown(KeyCode.Space)) GenerateRandom(fillPercentage);
-        if(Input.GetKeyDown(KeyCode.Return)) IterateMapOnce();
+        AnalyseMap am = new AnalyseMap();
+
+        if(!am.GetAll(ref map, width, height))
+        {
+            GenerateFullMap(); //Remake map in case of not finding center point
+            return;
+        }
     }
+
+
+    //------------TOOLS-------------
 
     void GenerateRandom(float fillPer)
     {
@@ -38,7 +52,7 @@ public class CellularAutomata : MonoBehaviour
                 }
                 else
                 {
-                    map[x,z] = Random.Range(0f, 100f / fillPer) <= 1f;
+                    map[x,z] = Random.Range(0f, 100f) <= fillPer;
                 }
             }
         }
@@ -60,12 +74,9 @@ public class CellularAutomata : MonoBehaviour
                 }
 
                 int nb = numNeighbours(x,z);
-                //TODO: Tweak Rules
-                //Death -> Live when exactly 3 neighbours
-                if (!map[x, z] && nb == 3) newMap[x, z] = true;
-
-                //Live -> Death when less than 2 or more than 4 neighbours
-                else if(map[x, z] && (nb < 2 || nb > 4)) newMap[x, z] = false;
+                if(nb > 4) newMap[x,z] = true;
+                else if(nb < 4) newMap[x,z] = false;
+                else newMap[x,z] = map[x,z];
             }
         }
 
@@ -89,15 +100,17 @@ public class CellularAutomata : MonoBehaviour
         return n;
     }
 
+    //------------DRAW-------------
     private void OnDrawGizmos()
     {
-        //TODO: draw smth
+        if(map == null) return;
+
         for(int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
             {
                 Gizmos.color = map[x, z]? Color.black: Color.white;
-                Gizmos.DrawCube(new Vector3(x, 0, z), Vector3.one);
+                Gizmos.DrawCube(new Vector3(x + transform.position.x, 0, z + transform.position.z), Vector3.one);
             }
         }
     }
