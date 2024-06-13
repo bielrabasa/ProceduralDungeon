@@ -1,9 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TreeEditor;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
@@ -11,8 +6,8 @@ public class MeshGenerator : MonoBehaviour
     [SerializeField] int wallHeight = 3;
 
     Mesh mesh;
-    Vector3[] vertices;
-    int[] triangles;
+    Vector3[] ver;
+    int[] tri;
 
     CellularAutomata ca;
 
@@ -21,60 +16,18 @@ public class MeshGenerator : MonoBehaviour
         ca = GetComponent<CellularAutomata>();
 
         //Attach mesh to mesh filter
-        gameObject.AddComponent<MeshRenderer>();
         mesh = new Mesh();
         mesh.name = "MeshFromPixels";
-        gameObject.AddComponent<MeshFilter>().mesh = mesh;
+        gameObject.GetComponent<MeshFilter>().mesh = mesh;
 
-        
         GenerateMesh();
-        UpdateMesh();
     }
-    
-    /*void CreateGrid()
-    {
-        //Vertices in the grid
-        vertices = new Vector3[(width + 1) * (depth + 1)];
-
-        for (int z = 0, i = 0; z <= depth; z++)
-            for (int x = 0; x <= width; x++, i++)
-            {
-                float height = GetHeight(x + xOffset * width, z + zOffset * depth, 20f, 3, 2, .5f) * terrainHeight;
-                vertices[i] = new Vector3(x, height, z);
-            }
-
-        //Create all triangles
-        triangles = new int[6 * width * depth];
-
-        int currentVertice = 0;
-        int numOfTriangles = 0;
-
-        for (int z = 0; z < depth; z++, currentVertice++)
-            for (int x = 0; x < width; x++)
-            {
-                triangles[numOfTriangles + 0] = currentVertice + 0;
-                triangles[numOfTriangles + 1] = currentVertice + width + 1;
-                triangles[numOfTriangles + 2] = currentVertice + 1;
-                triangles[numOfTriangles + 3] = currentVertice + 1;
-                triangles[numOfTriangles + 4] = currentVertice + width + 1;
-                triangles[numOfTriangles + 5] = currentVertice + width + 2;
-
-                numOfTriangles += 6;
-                currentVertice++;
-            }
-
-        //Set Vertex Color (instead of UVs <- only for texture)
-        colors = new Color[vertices.Length];
-        for (int z = 0, i = 0; z <= depth; z++)
-            for (int x = 0; x <= width; x++, i++)
-                colors[i] = terrainColorGradient.Evaluate(vertices[i].y / terrainHeight);
-    }*/
 
     void UpdateMesh()
     {
         mesh.Clear();
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
+        mesh.vertices = ver;
+        mesh.triangles = tri;
         //mesh.uv = uv;
         //mesh.colors = colors;
 
@@ -92,42 +45,90 @@ public class MeshGenerator : MonoBehaviour
             {
                 if (ca.map[x, z])
                 {
-                    // Add vertices for a cube face
-                    AddCubeFace(vertices, triangles, x, z);
+                    // Check 4 directions
+                    if (IsSpace(x - 1, z)) AddFace(ref vertices, ref triangles, x, z, Vector3.left);
+                    if (IsSpace(x + 1, z)) AddFace(ref vertices, ref triangles, x, z, Vector3.right);
+                    if (IsSpace(x, z - 1)) AddFace(ref vertices, ref triangles, x, z, Vector3.back);
+                    if (IsSpace(x, z + 1)) AddFace(ref vertices, ref triangles, x, z, Vector3.forward);
                 }
             }
         }
 
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-        mesh.RecalculateNormals();
+        ver = vertices.ToArray();
+        tri = triangles.ToArray();
+
+        UpdateMesh();
     }
 
-    void AddCubeFace(List<Vector3> vertices, List<int> triangles, int x, int z)
+    bool IsSpace(int x, int z)
     {
-        // Cube face vertices
-        Vector3 v0 = new Vector3(x, 0, z);
-        Vector3 v1 = new Vector3(x + 1, 0, z);
-        Vector3 v2 = new Vector3(x + 1, 1, z);
-        Vector3 v3 = new Vector3(x, 1, z);
+        if (x < 0 || x >= ca.width || z < 0 || z >= ca.height)
+        {
+            return true; //out of map
+        }
+        return !ca.map[x, z];
+    }
+
+    void AddFace(ref List<Vector3> vertices, ref List<int> triangles, int x, int z, Vector3 direction)
+    {
+        Vector3 v0, v1, v2, v3;
+
+        if (direction == Vector3.left)
+        {
+            v0 = new Vector3(x, 0, z);
+            v1 = new Vector3(x, wallHeight, z);
+            v2 = new Vector3(x, wallHeight, z + 1);
+            v3 = new Vector3(x, 0, z + 1);
+        }
+        else if (direction == Vector3.right)
+        {
+            v0 = new Vector3(x + 1, 0, z);
+            v1 = new Vector3(x + 1, wallHeight, z);
+            v2 = new Vector3(x + 1, wallHeight, z + 1);
+            v3 = new Vector3(x + 1, 0, z + 1);
+        }
+        else if (direction == Vector3.back)
+        {
+            v0 = new Vector3(x, 0, z);
+            v1 = new Vector3(x + 1, 0, z);
+            v2 = new Vector3(x + 1, wallHeight, z);
+            v3 = new Vector3(x, wallHeight, z);
+        }
+        else // Vector3.forward
+        {
+            v0 = new Vector3(x, 0, z + 1);
+            v1 = new Vector3(x + 1, 0, z + 1);
+            v2 = new Vector3(x + 1, wallHeight, z + 1);
+            v3 = new Vector3(x, wallHeight, z + 1);
+        }
 
         int vertIndex = vertices.Count;
 
-        // Add vertices
         vertices.Add(v0);
         vertices.Add(v1);
         vertices.Add(v2);
         vertices.Add(v3);
 
-        // Add triangles (two for a quad)
-        triangles.Add(vertIndex);
-        triangles.Add(vertIndex + 2);
-        triangles.Add(vertIndex + 1);
+        if (direction == Vector3.left || direction == Vector3.back)
+        {
+            triangles.Add(vertIndex);
+            triangles.Add(vertIndex + 2);
+            triangles.Add(vertIndex + 1);
 
-        triangles.Add(vertIndex);
-        triangles.Add(vertIndex + 3);
-        triangles.Add(vertIndex + 2);
+            triangles.Add(vertIndex);
+            triangles.Add(vertIndex + 3);
+            triangles.Add(vertIndex + 2);
+        }
+        else
+        {
+            triangles.Add(vertIndex);
+            triangles.Add(vertIndex + 1);
+            triangles.Add(vertIndex + 2);
+
+            triangles.Add(vertIndex);
+            triangles.Add(vertIndex + 2);
+            triangles.Add(vertIndex + 3);
+        }
     }
-
 }
 

@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class CellularAutomata : MonoBehaviour
@@ -30,7 +27,7 @@ public class CellularAutomata : MonoBehaviour
 
         AfterAnalyse();
 
-        CreateDoors(new Vector2Int(1, -1));
+        CreateDoors(new Vector2Int(2, 2));
     }
 
     void AfterAnalyse()
@@ -46,7 +43,7 @@ public class CellularAutomata : MonoBehaviour
     {
         //Carve doors
         AnalyseMap.CreateAllDoors(ref map, width, height, doors);
-
+        
         //Smooth
         for (int i = 0; i < 5; i++)
         {
@@ -133,7 +130,7 @@ public class CellularAutomata : MonoBehaviour
             for (int z = 0; z < height; z++)
             {
                 Gizmos.color = map[x, z]? Color.black: Color.white;
-                Gizmos.DrawCube(new Vector3(x + transform.position.x, 0, z + transform.position.z), Vector3.one);
+                Gizmos.DrawCube(new Vector3(x + transform.position.x, 0, z + transform.position.z), Vector3.one * .5f);
             }
         }
     }*/
