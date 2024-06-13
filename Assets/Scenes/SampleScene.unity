@@ -169,6 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 3716733205648993033, guid: fe6f94f54a84b5444a6952f30eb643d7, type: 3}
   grid: {x: 1, y: 2}
+  separation: 10
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

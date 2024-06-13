@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class CellularAutomata : MonoBehaviour
@@ -12,26 +13,48 @@ public class CellularAutomata : MonoBehaviour
 
     public bool[,] map;
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Return)) IterateMapOnce();
+    }
+
     //------------GENERATE-------------
     public void GenerateFullMap()
     {
         GenerateRandom(fillPercentage);
+
         for (int i = 0; i < 15; i++)
         {
             IterateMapOnce();
         }
+
         AfterAnalyse();
+
+        CreateDoors(new Vector2Int(1, -1));
     }
 
     void AfterAnalyse()
     {
-        AnalyseMap am = new AnalyseMap();
-
-        if(!am.GetAll(ref map, width, height))
+        if(!AnalyseMap.GetFixedMap(ref map, width, height))
         {
             GenerateFullMap(); //Remake map in case of not finding center point
             return;
         }
+    }
+
+    void CreateDoors(Vector2Int doors)
+    {
+        //Carve doors
+        AnalyseMap.CreateAllDoors(ref map, width, height, doors);
+
+        //Smooth
+        for (int i = 0; i < 5; i++)
+        {
+            IterateMapOnce();
+        }
+
+        //Carve again
+        AnalyseMap.CreateAllDoors(ref map, width, height, doors);
     }
 
 
