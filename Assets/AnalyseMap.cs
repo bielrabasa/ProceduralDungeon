@@ -100,7 +100,7 @@ public static class AnalyseMap
         {
             Vector2Int curr = sPos;
             curr.x += (doorPos.x == 0) ? i : 0; //if doors are top or bottom
-            curr.y += (doorPos.y == 0) ? i : 0; //if doors are top or bottom
+            curr.y += (doorPos.y == 0) ? i : 0; //if doors are left or right
             
             while (map[curr.x, curr.y]) //while there are walls in the position looking break them
             {

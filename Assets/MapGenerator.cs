@@ -41,7 +41,9 @@ public class MapGenerator : MonoBehaviour
         {
             for(int y = 0; y < grid.y; y++)
             {
-                Instantiate(map, new Vector3(x * (w + separation), 0, y * (h + separation)), Quaternion.identity, transform).GetComponent<CellularAutomata>().GenerateFullMap();
+                GameObject instance = Instantiate(map, new Vector3(x * (w + separation), 0, y * (h + separation)), Quaternion.identity, transform);
+                instance.GetComponent<CellularAutomata>().GenerateFullMap();
+                instance.AddComponent<MeshGenerator>();
             }
         }
     }

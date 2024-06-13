@@ -124,7 +124,7 @@ public class CellularAutomata : MonoBehaviour
     }
 
     //------------DRAW-------------
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         if(map == null) return;
 
@@ -136,5 +136,5 @@ public class CellularAutomata : MonoBehaviour
                 Gizmos.DrawCube(new Vector3(x + transform.position.x, 0, z + transform.position.z), Vector3.one);
             }
         }
-    }
+    }*/
 }
