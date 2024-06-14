@@ -15,7 +15,7 @@ public class MapGenerator : MonoBehaviour
         w = ca.width; 
         h = ca.height;
 
-        Generate();
+        GenerateFloor();
     }
 
     private void Update()
@@ -27,20 +27,25 @@ public class MapGenerator : MonoBehaviour
                 Destroy(child.gameObject);
             }
 
-            Generate();
+            GenerateFloor();
         }
     }
 
-    void Generate()
+    void GenerateFloor()
     {
         for (int x = 0; x < grid.x; x++)
         {
             for(int y = 0; y < grid.y; y++)
             {
-                GameObject instance = Instantiate(map, new Vector3(x * (w + separation), 0, y * (h + separation)), Quaternion.identity, transform);
-                instance.GetComponent<CellularAutomata>().GenerateFullMap();
-                instance.AddComponent<MeshGenerator>();
+                GenerateChunk(x, y, new Vector2Int(2, 2));
             }
         }
+    }
+
+    void GenerateChunk(int gridX, int gridY, Vector2Int doors)
+    {
+        GameObject instance = Instantiate(map, new Vector3(gridX * (w + separation), 0, gridY * (h + separation)), Quaternion.identity, transform);
+        instance.GetComponent<CellularAutomata>().GenerateFullMap(doors);
+        instance.AddComponent<MeshGenerator>();
     }
 }

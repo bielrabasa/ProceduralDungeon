@@ -16,7 +16,7 @@ public class CellularAutomata : MonoBehaviour
     }
 
     //------------GENERATE-------------
-    public void GenerateFullMap()
+    public void GenerateFullMap(Vector2Int doors)
     {
         GenerateRandom(fillPercentage);
 
@@ -25,18 +25,18 @@ public class CellularAutomata : MonoBehaviour
             IterateMapOnce();
         }
 
-        AfterAnalyse();
-
-        CreateDoors(new Vector2Int(2, 2));
-    }
-
-    void AfterAnalyse()
-    {
-        if(!AnalyseMap.GetFixedMap(ref map, width, height))
+        if (!AfterAnalyse())
         {
-            GenerateFullMap(); //Remake map in case of not finding center point
+            GenerateFullMap(doors); //Generate again in case of error
             return;
         }
+
+        CreateDoors(doors);
+    }
+
+    bool AfterAnalyse()
+    {
+        return AnalyseMap.GetFixedMap(ref map, width, height);
     }
 
     void CreateDoors(Vector2Int doors)
