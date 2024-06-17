@@ -4,9 +4,9 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     public GameObject map;
+    public int roomNumber = 10;
     int w, h;
 
-    public Vector2Int grid;
     public int separation;
 
     public Material wallMat;
@@ -35,13 +35,69 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateFloor()
     {
-        for (int x = 0; x < grid.x; x++)
+        //TODO: DO NOT generate room where one already is
+        int x = 0, y = 0;
+        int lastRoomPos = -1;
+
+        for (int i = 0; i < roomNumber; i++)
         {
-            for(int y = 0; y < grid.y; y++)
+            int nextRoomPos = Random.Range(0, 4);
+            int nowX = x, nowY = y;
+
+            Vector2Int doors = new Vector2Int(0, 0);
+            
+
+            //Check for doors to next room & create corridor
+            if(i != roomNumber - 1)
+                switch (nextRoomPos)
+                {
+                    case 0: //TOP
+                        doors.y = 1;
+                        y++;
+                        CreateCorridor(nowX, nowY, true);
+                        break;
+                    case 1: //RIGHT
+                        doors.x = 1;
+                        x++;
+                        CreateCorridor(nowX, nowY, false);
+                        break;
+                    case 2: //BOTTOM
+                        doors.y = -1;
+                        y--;
+                        CreateCorridor(nowX, nowY - 1, true);
+                        break;
+                    case 3: //LEFT
+                        doors.x = -1;
+                        x--;
+                        CreateCorridor(nowX - 1, nowY, false);
+                        break;
+                }
+
+            //Check for doors to last room
+            switch (lastRoomPos)
             {
-                GenerateChunk(x, y, new Vector2Int(2, 2));
-                CreateCorridor(x, y, false);
+                case 0: //TOP
+                    if (doors.y == 0) doors.y = 1;
+                    else doors.y = 2;
+                    break;
+                case 1: //RIGHT
+                    if (doors.x == 0) doors.x = 1;
+                    else doors.x = 2;
+                    break;
+                case 2: //BOTTOM
+                    if (doors.y == 0) doors.y = -1;
+                    else doors.y = 2;
+                    break;
+                case 3: //LEFT
+                    if (doors.x == 0) doors.x = -1;
+                    else doors.x = 2;
+                    break;
             }
+
+            lastRoomPos = nextRoomPos + 2;
+            if (lastRoomPos >= 4) lastRoomPos -= 4;
+
+            GenerateChunk(nowX, nowY, doors);
         }
     }
 
