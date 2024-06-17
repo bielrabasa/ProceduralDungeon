@@ -87,8 +87,8 @@ public static class AnalyseMap
     {
         Vector2Int sPos = Vector2Int.zero;
 
-        if (doorPos.x == 0) sPos.x = w / 2 - 1; //door in the top or bottom
-        if (doorPos.y == 0) sPos.y = h / 2 - 1; //door in the left or right
+        if (doorPos.x == 0) sPos.x = w / 2 - 2; //door in the top or bottom
+        if (doorPos.y == 0) sPos.y = h / 2 - 2; //door in the left or right
 
         if (doorPos.x == 1) sPos.x = w - 1;
         if (doorPos.x == -1) sPos.x = 0;
