@@ -19,8 +19,15 @@ public class MeshGenerator : MonoBehaviour
         mesh = new Mesh();
         mesh.name = "MeshFromPixels";
         gameObject.GetComponent<MeshFilter>().mesh = mesh;
+    }
 
-        GenerateMesh();
+    private void Update()
+    {
+        if(ca.isFinished)
+        {
+            GenerateMesh();
+            ca.isFinished = false;
+        }
     }
 
     void UpdateMesh()

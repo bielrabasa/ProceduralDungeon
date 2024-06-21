@@ -5,10 +5,15 @@ public static class AnalyseMap
 {
     public static Vector2Int ini;
 
-    public static bool GetFixedMap(ref bool[,] map, int w, int h)
+    public static void GetFixedMap(ref bool[,] map, int w, int h, ref bool isAnalised, ref bool analiseFailed)
     {
-        if (!GetEmptyCenterPoint(ref map, w, h)) return false;
-        return GetOpenSpace(ref map, w, h);
+        if (!GetEmptyCenterPoint(ref map, w, h)) analiseFailed = false;
+        
+        else if (!GetOpenSpace(ref map, w, h)) analiseFailed = false;
+
+        //if (analiseFailed) Debug.Log("AnaliseFailed!");
+
+        isAnalised = true;
     }
 
     public static bool GetEmptyCenterPoint(ref bool[,] map, int w, int h)

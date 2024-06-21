@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   map: {fileID: 3716733205648993033, guid: fe6f94f54a84b5444a6952f30eb643d7, type: 3}
-  grid: {x: 2, y: 2}
+  roomNumber: 10
   separation: 10
   wallMat: {fileID: 2100000, guid: 3a131a6247128e144aa29be7945434a7, type: 2}
 --- !u!1 &705507993

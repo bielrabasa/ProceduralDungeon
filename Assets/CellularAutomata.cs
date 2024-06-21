@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 
 public class CellularAutomata : MonoBehaviour
@@ -10,9 +11,37 @@ public class CellularAutomata : MonoBehaviour
 
     public bool[,] map;
 
+    private Vector2Int doors;
+
+    //Threading
+    Thread analyseThread;
+    bool isAnalised = false;
+    public bool isFinished = false;
+    bool analiseFailed = false;
+
+
+    private void RestartValues()
+    {
+        isAnalised = false;
+        analiseFailed = false;
+        isFinished = false;
+    }
+
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Return)) IterateMapOnce();
+        if (!isAnalised) return;
+
+        if (analiseFailed)
+        {
+            RestartValues();
+            GenerateFullMap(doors); //Generate again in case of error
+        }
+        else
+        {
+            CreateDoors(doors);
+            RestartValues();
+            isFinished = true;
+        }
     }
 
     //------------GENERATE-------------
@@ -25,18 +54,15 @@ public class CellularAutomata : MonoBehaviour
             IterateMapOnce();
         }
 
-        if (!AfterAnalyse())
-        {
-            GenerateFullMap(doors); //Generate again in case of error
-            return;
-        }
+        this.doors = doors;
 
-        CreateDoors(doors);
+        analyseThread = new Thread(AfterAnalyse);
+        analyseThread.Start();
     }
 
-    bool AfterAnalyse()
+    void AfterAnalyse()
     {
-        return AnalyseMap.GetFixedMap(ref map, width, height);
+        AnalyseMap.GetFixedMap(ref map, width, height, ref isAnalised, ref analiseFailed);
     }
 
     void CreateDoors(Vector2Int doors)

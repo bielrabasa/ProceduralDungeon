@@ -1,10 +1,12 @@
-using UnityEditor.VersionControl;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
     public GameObject map;
     public int roomNumber = 10;
+    List<Vector2Int> roomPlaces = new List<Vector2Int>();
     int w, h;
 
     public int separation;
@@ -14,41 +16,56 @@ public class MapGenerator : MonoBehaviour
     void Start()
     {
         CellularAutomata ca = map.GetComponent<CellularAutomata>();
-        w = ca.width; 
+        w = ca.width;
         h = ca.height;
 
         GenerateFloor();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            foreach(Transform child in transform)
-            {
-                Destroy(child.gameObject);
-            }
-
-            GenerateFloor();
-        }
-    }
-
     void GenerateFloor()
     {
-        //TODO: DO NOT generate room where one already is
+        roomPlaces.Clear();
+
         int x = 0, y = 0;
         int lastRoomPos = -1;
 
         for (int i = 0; i < roomNumber; i++)
         {
-            int nextRoomPos = Random.Range(0, 4);
+            int nextRoomPos = 0;
             int nowX = x, nowY = y;
 
             Vector2Int doors = new Vector2Int(0, 0);
-            
 
-            //Check for doors to next room & create corridor
-            if(i != roomNumber - 1)
+            if (i != roomNumber - 1)
+            {
+                bool roomFound = false;
+                while (!roomFound)
+                {
+                    nextRoomPos = Random.Range(0, 4); //Generate Random position
+
+                    //Recheck nextRoomPos depending on if it a possible place
+                    Vector2Int roomToCheck = new Vector2Int(nowX, nowY);
+                    switch (nextRoomPos)
+                    {
+                        case 0: //TOP
+                            roomToCheck.y++;
+                            break;
+                        case 1: //RIGHT
+                            roomToCheck.x++;
+                            break;
+                        case 2: //BOTTOM
+                            roomToCheck.y--;
+                            break;
+                        case 3: //LEFT
+                            roomToCheck.x--;
+                            break;
+                    }
+
+                    //TEST
+                    if (IsFree(roomToCheck) && AdjacentSpaces(roomToCheck) >= 3) roomFound = true;
+                }
+
+                //Check for doors to next room & create corridor
                 switch (nextRoomPos)
                 {
                     case 0: //TOP
@@ -72,6 +89,7 @@ public class MapGenerator : MonoBehaviour
                         CreateCorridor(nowX - 1, nowY, false);
                         break;
                 }
+            }
 
             //Check for doors to last room
             switch (lastRoomPos)
@@ -101,8 +119,26 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
+    int AdjacentSpaces(Vector2Int pos)
+    {
+        int n = 0;
+        n += IsFree(new Vector2Int(pos.x, pos.y + 1))? 1 : 0;
+        n += IsFree(new Vector2Int(pos.x + 1, pos.y))? 1 : 0;
+        n += IsFree(new Vector2Int(pos.x, pos.y - 1))? 1 : 0;
+        n += IsFree(new Vector2Int(pos.x - 1, pos.y))? 1 : 0;
+        return n;
+    }
+
+    bool IsFree(Vector2Int pos)
+    {
+        return !roomPlaces.Contains(pos);
+    }
+
+    //GENERATE
     void GenerateChunk(int gridX, int gridY, Vector2Int doors)
     {
+        roomPlaces.Add(new Vector2Int(gridX, gridY));
+
         GameObject instance = Instantiate(map, new Vector3(gridX * (w + separation), 0, gridY * (h + separation)), Quaternion.identity, transform);
         instance.GetComponent<CellularAutomata>().GenerateFullMap(doors);
         instance.AddComponent<MeshGenerator>();
