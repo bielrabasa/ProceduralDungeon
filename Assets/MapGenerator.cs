@@ -12,6 +12,7 @@ public class MapGenerator : MonoBehaviour
     public int separation;
 
     public Material wallMat;
+    public Material floorMat;
 
     void Start()
     {
@@ -142,6 +143,9 @@ public class MapGenerator : MonoBehaviour
         GameObject instance = Instantiate(map, new Vector3(gridX * (w + separation), 0, gridY * (h + separation)), Quaternion.identity, transform);
         instance.GetComponent<CellularAutomata>().GenerateFullMap(doors);
         instance.AddComponent<MeshGenerator>();
+        instance.GetComponent<Renderer>().material = wallMat;
+
+        CreateFloor(gridX, gridY);
     }
 
     void CreateCorridor(int x, int y, bool vertical)
@@ -166,5 +170,16 @@ public class MapGenerator : MonoBehaviour
 
         corridor.transform.position = pos; 
         corridor.transform.parent = transform;
+    }
+
+    void CreateFloor(int x, int y)
+    {
+        GameObject floor = new GameObject("Floor");
+        floor.AddComponent<MeshRenderer>().material = wallMat;
+        floor.AddComponent<MeshFilter>().mesh = FloorScript.GetFloorInstance();
+        floor.GetComponent<Renderer>().material = floorMat;
+
+        floor.transform.position = new Vector3((x + 0.5f) * (w + separation), 0, (y + 0.5f) * (h + separation));
+        floor.transform.parent = transform;
     }
 }

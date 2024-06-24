@@ -8,6 +8,7 @@ public class MeshGenerator : MonoBehaviour
     Mesh mesh;
     Vector3[] ver;
     int[] tri;
+    Vector2[] uv;
 
     CellularAutomata ca;
 
@@ -35,7 +36,7 @@ public class MeshGenerator : MonoBehaviour
         mesh.Clear();
         mesh.vertices = ver;
         mesh.triangles = tri;
-        //mesh.uv = uv;
+        mesh.uv = uv;
         //mesh.colors = colors;
 
         mesh.RecalculateNormals();
@@ -45,6 +46,7 @@ public class MeshGenerator : MonoBehaviour
     {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
+        List<Vector2> uvs = new List<Vector2>();
 
         for (int x = 0; x < ca.width; x++)
         {
@@ -53,16 +55,17 @@ public class MeshGenerator : MonoBehaviour
                 if (ca.map[x, z])
                 {
                     // Check 4 directions
-                    if (IsSpace(x - 1, z)) AddFace(ref vertices, ref triangles, x, z, Vector3.left);
-                    if (IsSpace(x + 1, z)) AddFace(ref vertices, ref triangles, x, z, Vector3.right);
-                    if (IsSpace(x, z - 1)) AddFace(ref vertices, ref triangles, x, z, Vector3.back);
-                    if (IsSpace(x, z + 1)) AddFace(ref vertices, ref triangles, x, z, Vector3.forward);
+                    if (IsSpace(x - 1, z)) AddFace(ref vertices, ref triangles, ref uvs, x, z, Vector3.left);
+                    if (IsSpace(x + 1, z)) AddFace(ref vertices, ref triangles, ref uvs, x, z, Vector3.right);
+                    if (IsSpace(x, z - 1)) AddFace(ref vertices, ref triangles, ref uvs, x, z, Vector3.back);
+                    if (IsSpace(x, z + 1)) AddFace(ref vertices, ref triangles, ref uvs, x, z, Vector3.forward);
                 }
             }
         }
 
         ver = vertices.ToArray();
         tri = triangles.ToArray();
+        uv = uvs.ToArray();
 
         UpdateMesh();
     }
@@ -76,7 +79,7 @@ public class MeshGenerator : MonoBehaviour
         return !ca.map[x, z];
     }
 
-    void AddFace(ref List<Vector3> vertices, ref List<int> triangles, int x, int z, Vector3 direction)
+    void AddFace(ref List<Vector3> vertices, ref List<int> triangles, ref List<Vector2> uvs, int x, int z, Vector3 direction)
     {
         Vector3 v0, v1, v2, v3;
 
@@ -135,6 +138,21 @@ public class MeshGenerator : MonoBehaviour
             triangles.Add(vertIndex);
             triangles.Add(vertIndex + 2);
             triangles.Add(vertIndex + 3);
+        }
+
+        if (direction == Vector3.left || direction == Vector3.right)
+        {
+            uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(0, 1));
+            uvs.Add(new Vector2(1, 1));
+            uvs.Add(new Vector2(1, 0));
+        }
+        else
+        {
+            uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(1, 0));
+            uvs.Add(new Vector2(1, 1));
+            uvs.Add(new Vector2(0, 1));
         }
     }
 }

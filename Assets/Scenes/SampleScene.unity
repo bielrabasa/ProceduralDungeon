@@ -170,7 +170,8 @@ MonoBehaviour:
   map: {fileID: 3716733205648993033, guid: fe6f94f54a84b5444a6952f30eb643d7, type: 3}
   roomNumber: 10
   separation: 10
-  wallMat: {fileID: 2100000, guid: 3a131a6247128e144aa29be7945434a7, type: 2}
+  wallMat: {fileID: 2100000, guid: 92cff70e38e4a8f4d80b274916986644, type: 2}
+  floorMat: {fileID: 2100000, guid: dfe2b8e7807cf5649b40118696133b60, type: 2}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,7 +264,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &963194225
 GameObject:
@@ -341,11 +342,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.70710677}
+  m_LocalPosition: {x: -16.22, y: 5.77, z: -0.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

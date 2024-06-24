@@ -20,6 +20,7 @@ public static class CorridorScript
         //Create Structure
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
+        List<Vector2> uvs = new List<Vector2>();
 
         //Left face
         vertices.Add(new Vector3(-length / 2, 0, -width / 2));
@@ -49,10 +50,20 @@ public static class CorridorScript
         triangles.Add(6);
         triangles.Add(7);
 
+        //UVs for 2 faces
+        for (int i = 0; i < 2; i++)
+        {
+            uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(length, 0));
+            uvs.Add(new Vector2(0, 1));
+            uvs.Add(new Vector2(length, 1));
+        }
+
         //Update Mesh
         toInstance.Clear();
         toInstance.vertices = vertices.ToArray();
         toInstance.triangles = triangles.ToArray();
+        toInstance.uv = uvs.ToArray();
         toInstance.RecalculateNormals();
 
         return toInstance;
