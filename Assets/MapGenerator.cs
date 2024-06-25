@@ -14,6 +14,8 @@ public class MapGenerator : MonoBehaviour
 
     public Material wallMat;
     public Material floorMat;
+    public GameObject roomLight;
+    public GameObject corridorLight;
 
     void Start()
     {
@@ -149,6 +151,7 @@ public class MapGenerator : MonoBehaviour
         instance.name = "Map_" + id.ToString();
 
         CreateFloor(gridX, gridY);
+        CreateLights(gridX, gridY);
     }
 
     void CreateCorridor(int x, int y, bool vertical)
@@ -173,6 +176,8 @@ public class MapGenerator : MonoBehaviour
 
         corridor.transform.position = pos; 
         corridor.transform.parent = transform;
+
+        Instantiate(corridorLight, pos + new Vector3(0, 5, 0), Quaternion.Euler(90, 0, 0), transform);
     }
 
     void CreateFloor(int x, int y)
@@ -184,5 +189,15 @@ public class MapGenerator : MonoBehaviour
 
         floor.transform.position = new Vector3((x + 0.5f) * (w + separation), 0, (y + 0.5f) * (h + separation));
         floor.transform.parent = transform;
+    }
+
+    void CreateLights(int x, int y)
+    {
+        Vector3 realPos;
+        realPos.y = 20;
+        realPos.x = (x + .5f) * (w + separation) - separation / 2f;
+        realPos.z = (y + .5f) * (h + separation) - separation / 2f;
+
+        Instantiate(roomLight, realPos, Quaternion.Euler(90, 0, 0), transform);
     }
 }
