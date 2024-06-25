@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
@@ -116,7 +117,7 @@ public class MapGenerator : MonoBehaviour
             lastRoomPos = nextRoomPos + 2;
             if (lastRoomPos >= 4) lastRoomPos -= 4;
 
-            GenerateChunk(nowX, nowY, doors);
+            GenerateChunk(nowX, nowY, doors, i);
         }
     }
 
@@ -136,14 +137,16 @@ public class MapGenerator : MonoBehaviour
     }
 
     //GENERATE
-    void GenerateChunk(int gridX, int gridY, Vector2Int doors)
+    void GenerateChunk(int gridX, int gridY, Vector2Int doors, int id)
     {
         roomPlaces.Add(new Vector2Int(gridX, gridY));
 
         GameObject instance = Instantiate(map, new Vector3(gridX * (w + separation), 0, gridY * (h + separation)), Quaternion.identity, transform);
         instance.GetComponent<CellularAutomata>().GenerateFullMap(doors);
-        instance.AddComponent<MeshGenerator>();
+        MeshGenerator mg = instance.AddComponent<MeshGenerator>();
+        if(id == 0) mg.placePlayer = true;
         instance.GetComponent<Renderer>().material = wallMat;
+        instance.name = "Map_" + id.ToString();
 
         CreateFloor(gridX, gridY);
     }
@@ -152,8 +155,8 @@ public class MapGenerator : MonoBehaviour
     {
         GameObject corridor = new GameObject("Corridor");
         corridor.AddComponent<MeshRenderer>().material = wallMat;
-
         corridor.AddComponent<MeshFilter>().mesh = CorridorScript.GetCorridorInstance();
+        corridor.AddComponent<MeshCollider>();
 
         Vector3 pos = new Vector3(++x * (w + separation), 0, ++y * (h + separation));
         if (vertical)
@@ -175,9 +178,9 @@ public class MapGenerator : MonoBehaviour
     void CreateFloor(int x, int y)
     {
         GameObject floor = new GameObject("Floor");
-        floor.AddComponent<MeshRenderer>().material = wallMat;
+        floor.AddComponent<MeshRenderer>().material = floorMat;
         floor.AddComponent<MeshFilter>().mesh = FloorScript.GetFloorInstance();
-        floor.GetComponent<Renderer>().material = floorMat;
+        floor.AddComponent<MeshCollider>();
 
         floor.transform.position = new Vector3((x + 0.5f) * (w + separation), 0, (y + 0.5f) * (h + separation));
         floor.transform.parent = transform;

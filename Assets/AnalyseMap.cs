@@ -3,20 +3,25 @@ using UnityEngine;
 
 public static class AnalyseMap
 {
-    public static Vector2Int ini;
+    public static Vector2Int playerPos = Vector2Int.zero;
 
     public static void GetFixedMap(ref bool[,] map, int w, int h, ref bool isAnalised, ref bool analiseFailed)
     {
-        if (!GetEmptyCenterPoint(ref map, w, h)) analiseFailed = false;
-        
-        else if (!GetOpenSpace(ref map, w, h)) analiseFailed = false;
+        Vector2Int ini = Vector2Int.zero;
+        if (!GetEmptyCenterPoint(ref map, w, h, ref ini)) analiseFailed = true;
+        else if (!GetOpenSpace(ref map, w, h, ini)) analiseFailed = true;
 
-        //if (analiseFailed) Debug.Log("AnaliseFailed!");
+        //Set playerPos
+        if (!analiseFailed && playerPos == Vector2Int.zero)
+        {
+            playerPos = ini;
+            Debug.Log(playerPos);
+        }
 
         isAnalised = true;
     }
 
-    public static bool GetEmptyCenterPoint(ref bool[,] map, int w, int h)
+    public static bool GetEmptyCenterPoint(ref bool[,] map, int w, int h, ref Vector2Int ini)
     {
         int x = w / 3;
         int z = h / 2;
@@ -31,7 +36,7 @@ public static class AnalyseMap
         return true;
     }
 
-    public static bool GetOpenSpace(ref bool[,] map, int w, int h)
+    public static bool GetOpenSpace(ref bool[,] map, int w, int h, Vector2Int ini)
     {
         List<Vector2Int> visited = new List<Vector2Int>();
         Stack<Vector2Int> frontier = new Stack<Vector2Int>();

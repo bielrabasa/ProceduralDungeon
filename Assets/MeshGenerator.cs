@@ -11,6 +11,7 @@ public class MeshGenerator : MonoBehaviour
     Vector2[] uv;
 
     CellularAutomata ca;
+    public bool placePlayer = false;
 
     void Start()
     {
@@ -19,7 +20,7 @@ public class MeshGenerator : MonoBehaviour
         //Attach mesh to mesh filter
         mesh = new Mesh();
         mesh.name = "MeshFromPixels";
-        gameObject.GetComponent<MeshFilter>().mesh = mesh;
+        GetComponent<MeshFilter>().mesh = mesh;
     }
 
     private void Update()
@@ -28,6 +29,14 @@ public class MeshGenerator : MonoBehaviour
         {
             GenerateMesh();
             ca.isFinished = false;
+
+            if (placePlayer) {
+                Vector3 playerPos = transform.position;
+                playerPos.x += AnalyseMap.playerPos.x + 0.5f;
+                playerPos.y += 1;
+                playerPos.z += AnalyseMap.playerPos.y + 0.5f;
+                GameObject.FindGameObjectWithTag("Player").transform.position = playerPos;
+            }
         }
     }
 
@@ -37,9 +46,10 @@ public class MeshGenerator : MonoBehaviour
         mesh.vertices = ver;
         mesh.triangles = tri;
         mesh.uv = uv;
-        //mesh.colors = colors;
 
         mesh.RecalculateNormals();
+
+        GetComponent<MeshCollider>().sharedMesh = mesh;
     }
 
     void GenerateMesh()
