@@ -12,11 +12,7 @@ public static class AnalyseMap
         else if (!GetOpenSpace(ref map, w, h, ini)) analiseFailed = true;
 
         //Set playerPos
-        if (!analiseFailed && playerPos == Vector2Int.zero)
-        {
-            playerPos = ini;
-            Debug.Log(playerPos);
-        }
+        if (!analiseFailed && playerPos == Vector2Int.zero) playerPos = ini;
 
         isAnalised = true;
     }
