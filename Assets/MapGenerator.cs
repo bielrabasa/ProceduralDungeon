@@ -42,56 +42,55 @@ public class MapGenerator : MonoBehaviour
 
             if (i != roomNumber - 1)
             {
-                bool roomFound = false;
-                while (!roomFound)
-                {
-                    nextRoomPos = Random.Range(0, 4); //Generate Random position
+                //All possible rooms
+                List<int> possibleRooms = new List<int>();
 
-                    //Recheck nextRoomPos depending on if it a possible place
-                    Vector2Int roomToCheck = new Vector2Int(nowX, nowY);
+                Vector2Int roomToCheck = new Vector2Int(nowX, nowY + 1);
+                if(IsFree(roomToCheck) && AdjacentSpaces(roomToCheck) >= 3) possibleRooms.Add(0);
+
+                roomToCheck = new Vector2Int(nowX + 1, nowY);
+                if (IsFree(roomToCheck) && AdjacentSpaces(roomToCheck) >= 3) possibleRooms.Add(1);
+
+                roomToCheck = new Vector2Int(nowX, nowY - 1);
+                if (IsFree(roomToCheck) && AdjacentSpaces(roomToCheck) >= 3) possibleRooms.Add(2);
+
+                roomToCheck = new Vector2Int(nowX - 1, nowY);
+                if (IsFree(roomToCheck) && AdjacentSpaces(roomToCheck) >= 3) possibleRooms.Add(3);
+
+                //If no possible rooms in this place, just abort (no complications)
+                if (possibleRooms.Count == 0)
+                {
+                    i = roomNumber - 1;
+                    Debug.Log("No possible room layout, stopping generation.");
+                }
+                else
+                {
+                    nextRoomPos = possibleRooms[Random.Range(0, possibleRooms.Count)];
+
+                    //Check for doors to next room & create corridor
                     switch (nextRoomPos)
                     {
                         case 0: //TOP
-                            roomToCheck.y++;
+                            doors.y = 1;
+                            y++;
+                            CreateCorridor(nowX, nowY, true);
                             break;
                         case 1: //RIGHT
-                            roomToCheck.x++;
+                            doors.x = 1;
+                            x++;
+                            CreateCorridor(nowX, nowY, false);
                             break;
                         case 2: //BOTTOM
-                            roomToCheck.y--;
+                            doors.y = -1;
+                            y--;
+                            CreateCorridor(nowX, nowY - 1, true);
                             break;
                         case 3: //LEFT
-                            roomToCheck.x--;
+                            doors.x = -1;
+                            x--;
+                            CreateCorridor(nowX - 1, nowY, false);
                             break;
                     }
-
-                    //TEST
-                    if (IsFree(roomToCheck) && AdjacentSpaces(roomToCheck) >= 3) roomFound = true;
-                }
-
-                //Check for doors to next room & create corridor
-                switch (nextRoomPos)
-                {
-                    case 0: //TOP
-                        doors.y = 1;
-                        y++;
-                        CreateCorridor(nowX, nowY, true);
-                        break;
-                    case 1: //RIGHT
-                        doors.x = 1;
-                        x++;
-                        CreateCorridor(nowX, nowY, false);
-                        break;
-                    case 2: //BOTTOM
-                        doors.y = -1;
-                        y--;
-                        CreateCorridor(nowX, nowY - 1, true);
-                        break;
-                    case 3: //LEFT
-                        doors.x = -1;
-                        x--;
-                        CreateCorridor(nowX - 1, nowY, false);
-                        break;
                 }
             }
 
